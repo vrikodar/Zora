@@ -18,4 +18,5 @@ $ chmod +x zora
 $ ./zora --help
 ```
 
-## API and Non-API options
+## Zora Options
+
