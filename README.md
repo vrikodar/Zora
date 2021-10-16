@@ -53,3 +53,6 @@ $ ./zora --file cidr_networks.txt --api=0
 
 *whenever you rerun the program, it also checks for the presence of corresponding json in the data directory and if its found the results are displayed from the local storage*
 
+## Demo
+
+![](https://github.com/SxNade/Zora/blob/main/data/zora.gif)
