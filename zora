@@ -122,7 +122,7 @@ def read_subnets(file_path):
 		sys.exit()
 
 
-parser = optparse.OptionParser("\n./ipgeo [-h or --help] [-f or --file]=<file-path-with-subnets-on-each-line> [-a --api=0 or 1]")
+parser = optparse.OptionParser("\n./ipgeo [-h or --help] [-f or --file]=<file-path-with-subnets-on-each-line> [-a or --api=0/1]")
 parser.add_option("-f", "--file", dest="subnet_file_path", type='string', help="specify the file containing subnets one on each line")
 parser.add_option("-a", "--api", dest="api_value", type='int', help="specify 1 for using API {looks for api.txt containing key} else specify 0 to not use API")
 (options, args) = parser.parse_args()
