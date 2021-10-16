@@ -25,7 +25,7 @@ $ ./zora --help
 $ ./zora --help
 ```
 
-### Specifying File containing Networks in CIDR
+### Specifying File containing Networks in CIDR or Single IP addresses
 ```bash
 $ ./zora --file /path/to/file.txt
 ```
