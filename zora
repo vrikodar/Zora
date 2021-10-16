@@ -1,0 +1,140 @@
+#!/usr/bin/python3
+
+# Author: z3r0day :: https://github.com/SxNade
+
+RED = '\033[1;31;48m'
+WHITE = "\33[0m"
+GREEN = '\033[1;32;48m'
+
+import requests
+import sys
+import optparse
+import os
+import ipaddress
+import json # to Just parse API data properly , although can be done without this!
+import re
+
+
+def check_file_existence(file_path):
+	if os.path.exists(file_path) == False:
+		return False
+	else:
+		return True
+
+def write_json_file(IP, content_json):
+	f = open(f"data/{IP}.json", "w")
+	f.write(content_json)
+	f.close()
+
+def get_content(url):
+	resp = requests.get(url, allow_redirects=True)
+	webcontent = resp.text
+	return webcontent
+
+
+def api_method(hosts):
+	print(f"[{GREEN}+{WHITE}] Looking for {RED}api.txt{WHITE} in current Directory")
+	if check_file_existence("api.txt"):
+		with open("api.txt","r") as file:
+			one_line = file.readline().strip()
+			for host in hosts:
+				try:
+					if check_file_existence(f'data/{host}.json'):
+						print(f"\nJSON for {RED}{host}:{WHITE} found!")
+						f = open(f'data/{host}.json',"r")
+						data_dict = json.loads(f.read())
+						data = f'''
+			Target-IP: {RED}{host}{WHITE}
+			Country: {GREEN}{data_dict['country_name']}{WHITE}
+			State: {GREEN}{data_dict['state_prov']}{WHITE}
+			City: {GREEN}{data_dict['city']}{WHITE}
+
+			latitude: {data_dict['latitude']}
+			longitude: {data_dict['longitude']}
+			ISP: {GREEN}{data_dict['isp']}{WHITE}
+						'''
+						print(data)
+					else:
+						print(f"\nLocating {RED}{host}:{WHITE}")
+						json_content = get_content(f'https://api.ipgeolocation.io/ipgeo?apiKey={one_line}&ip={host}')
+						json_dict = json.loads(json_content)
+						data = f'''
+			Target-IP: {RED}{host}{WHITE}
+			Country: {GREEN}{json_dict['country_name']}{WHITE}
+			State: {GREEN}{json_dict['state_prov']}{WHITE}
+			City: {GREEN}{json_dict['city']}{WHITE}
+
+			latitude: {json_dict['latitude']}
+			longitude: {json_dict['longitude']}
+			ISP: {GREEN}{json_dict['isp']}{WHITE}
+						'''
+						print(data)
+						write_json_file(host, json_content)
+				except KeyboardInterrupt:
+					print(f"{RED}Exiting:{WHITE}")
+					sys.exit(0)
+			
+
+
+def non_api_method(hosts):
+	print(f"[{RED}INFO:{WHITE}] Not using {GREEN}API{WHITE}")
+	for host in hosts:
+		req_resp = get_content(f'https://www.ipligence.com/ip-address?ip={host}')
+		reverse_dns = re.findall(r"Reverse dns:(.*?)<",req_resp)
+		country_name = re.findall(r"Country:(.*?)<",req_resp)
+		Continent = re.findall(r"Continent:(.*?)<",req_resp)
+		City = re.findall(r"City:(.*?)<",req_resp)
+		Time_zone = re.findall(r"Time Zone:(.*?)<",req_resp)
+		data = f'''
+			Target-IP: {RED}{host}{WHITE}
+			Reverse-DNS: {reverse_dns[0]}
+			Country: {GREEN}{country_name[0]}{WHITE}
+			Continent: {GREEN}{Continent[0]}{WHITE}
+			City: {GREEN}{City[0]}{WHITE}
+			Time Zone: {GREEN}{Time_zone[0]}{WHITE}
+						'''
+		print(data)
+
+def subnet_to_hosts(target_subnet,api_value):
+	print(f"\n[{GREEN}+{WHITE}] Network:{RED}{target_subnet}{WHITE}")
+	network = ipaddress.ip_network(target_subnet)
+	hosts = list(network.hosts())
+	if int(api_value) == 1:
+		api_method(hosts)
+		print("===========================================================================")
+	else:
+		non_api_method(hosts)
+		print("===========================================================================")
+
+
+
+def read_subnets(file_path):
+	if check_file_existence(file_path):
+		print(f"\n[{GREEN}+{WHITE}] Reading subnets from file {file_path}")
+		subnet_list = []
+		with open(file_path, 'r') as file:
+			for line in file.readlines():
+				target_subnet = line.strip()
+				subnet_list.append(target_subnet)
+		return subnet_list
+	else:
+		print(f"[{RED}Error:{WHITE}] File path {file_path} not found")
+		sys.exit()
+
+
+parser = optparse.OptionParser("\n./ipgeo [-h or --help] [-f or --file]=<file-path-with-subnets-on-each-line> [-a --api=True or False]")
+parser.add_option("-f", "--file", dest="subnet_file_path", type='string', help="specify the file containing subnets one on each line")
+parser.add_option("-a", "--api", dest="api_value", type='int', help="specify 1 for using API {looks for api.txt containing key} else specify 0 to not use API")
+(options, args) = parser.parse_args()
+
+if (options.subnet_file_path == None or options.api_value == None):
+	parser.error(f"\n[{RED}!{WHITE}] Insufficent Arguments supplied\n")
+	sys.exit(0)
+
+else:
+	api_value = options.api_value
+	print(api_value)
+	target_file = options.subnet_file_path
+	subnet_list = read_subnets(target_file)
+	for subnet in subnet_list:
+		subnet_to_hosts(subnet,int(api_value))
