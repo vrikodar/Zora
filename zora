@@ -72,20 +72,22 @@ def api_method(hosts):
 						write_json_file(host, json_content)
 				except KeyboardInterrupt:
 					print(f"{RED}Exiting:{WHITE}")
-					sys.exit(0)
+					sys.exit(1)
 			
 
 
 def non_api_method(hosts):
 	print(f"[{RED}INFO:{WHITE}] Not using {GREEN}API{WHITE}")
 	for host in hosts:
-		req_resp = get_content(f'https://www.ipligence.com/ip-address?ip={host}')
-		reverse_dns = re.findall(r"Reverse dns:(.*?)<",req_resp)
-		country_name = re.findall(r"Country:(.*?)<",req_resp)
-		Continent = re.findall(r"Continent:(.*?)<",req_resp)
-		City = re.findall(r"City:(.*?)<",req_resp)
-		Time_zone = re.findall(r"Time Zone:(.*?)<",req_resp)
-		data = f'''
+		try:
+
+			req_resp = get_content(f'https://www.ipligence.com/ip-address?ip={host}')
+			reverse_dns = re.findall(r"Reverse dns:(.*?)<",req_resp)
+			country_name = re.findall(r"Country:(.*?)<",req_resp)
+			Continent = re.findall(r"Continent:(.*?)<",req_resp)
+			City = re.findall(r"City:(.*?)<",req_resp)
+			Time_zone = re.findall(r"Time Zone:(.*?)<",req_resp)
+			data = f'''
 			Target-IP: {RED}{host}{WHITE}
 			Reverse-DNS: {reverse_dns[0]}
 			Country: {GREEN}{country_name[0]}{WHITE}
@@ -93,7 +95,10 @@ def non_api_method(hosts):
 			City: {GREEN}{City[0]}{WHITE}
 			Time Zone: {GREEN}{Time_zone[0]}{WHITE}
 						'''
-		print(data)
+			print(data)
+		except KeyboardInterrupt:
+			print(f"{RED}Exiting:{WHITE}")
+			sys.exit(1)
 
 def subnet_to_hosts(target_subnet,api_value):
 	print(f"\n[{GREEN}+{WHITE}] Network:{RED}{target_subnet}{WHITE}")
@@ -138,3 +143,4 @@ else:
 	subnet_list = read_subnets(target_file)
 	for subnet in subnet_list:
 		subnet_to_hosts(subnet,int(api_value))
+
