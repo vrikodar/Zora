@@ -141,7 +141,6 @@ if (options.subnet_file_path == None or options.api_value == None):
 
 else:
 	api_value = options.api_value
-	print(api_value)
 	target_file = options.subnet_file_path
 	subnet_list = read_subnets(target_file)
 	for subnet in subnet_list:
