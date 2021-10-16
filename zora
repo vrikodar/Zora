@@ -73,14 +73,17 @@ def api_method(hosts):
 				except KeyboardInterrupt:
 					print(f"{RED}Exiting:{WHITE}")
 					sys.exit(1)
+	else:
+		print(f"\n[{RED}Error:{WHITE}] {GREEN}api.txt{WHITE} not found\n")
+		sys.exit(1)
 			
 
 
 def non_api_method(hosts):
-	print(f"[{RED}INFO:{WHITE}] Not using {GREEN}API{WHITE}")
+	print(f"\n[{RED}INFO:{WHITE}] Not using {GREEN}API{WHITE}")
 	for host in hosts:
 		try:
-
+			print(f"\nLocating {RED}{host}:{WHITE}")
 			req_resp = get_content(f'https://www.ipligence.com/ip-address?ip={host}')
 			reverse_dns = re.findall(r"Reverse dns:(.*?)<",req_resp)
 			country_name = re.findall(r"Country:(.*?)<",req_resp)
@@ -123,7 +126,7 @@ def read_subnets(file_path):
 				subnet_list.append(target_subnet)
 		return subnet_list
 	else:
-		print(f"[{RED}Error:{WHITE}] File path {file_path} not found")
+		print(f"\n[{RED}Error:{WHITE}] File path {file_path} not found\n")
 		sys.exit()
 
 
@@ -138,6 +141,7 @@ if (options.subnet_file_path == None or options.api_value == None):
 
 else:
 	api_value = options.api_value
+	print(api_value)
 	target_file = options.subnet_file_path
 	subnet_list = read_subnets(target_file)
 	for subnet in subnet_list:
