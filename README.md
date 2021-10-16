@@ -34,7 +34,7 @@ Note: The File must contain only one network at each line
 
 ### with API or Without API
 
-**with API, `Note that this will look for API key in api.txt File in current Directory, read only the very First line!`**
+**with API, `Note that this will look for API key in api.txt File in current Directory, reads only the very First line!`**
 
 [Get Your API Key](https://ipgeolocation.io/signup.html)
 ```bash
