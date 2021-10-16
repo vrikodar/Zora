@@ -56,3 +56,7 @@ $ ./zora --file cidr_networks.txt --api=0
 ## Demo
 
 ![](https://github.com/SxNade/Zora/blob/main/data/zora.gif)
+
+# Future Updates
+
+**Note:** A Major update of utilizing online APIs for free / without any key etc.. will be added soon
